@@ -18,6 +18,7 @@ struct e;
 
 typedef struct e {
     struct n *node;
+    int weight;
     struct e *next;
 } Edge;
 
@@ -69,12 +70,10 @@ void GraphFree(Graph *g);
  * Function: GraphAddNode
  * Usage: GraphAddNode(mygraph, 1);
  * ---------------------------------------
- * Omitted for now, as this project doesn't require us to add nodes after
- * a graph is created.  Graph size is known in advance, and thus all
- * vertices can be added during the initial allocation
+ * Adds a node to mygraph
  */
 
-//int GraphAddVertex(Graph *g);
+int GraphAddNode(Graph *g, int value);
 
 
 /*
@@ -94,5 +93,7 @@ void dfsloop(Graph *g, bool is_first_call);
 void PrintGraph(Graph *g, FILE *ofp);
 
 void GraphReorderNodesByFValue(Graph *g);
+
+
 
 #endif

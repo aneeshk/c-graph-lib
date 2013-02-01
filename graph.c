@@ -59,6 +59,13 @@ void GraphFree(Graph *g)
     free(g);
 }
 
+int GraphAddNode(Graph *g, int value)
+{
+    
+
+    return 0;
+}
+
 
 /* returns 1 on success, 0 on failure (example: repeating an edge)
  */
