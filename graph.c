@@ -20,32 +20,33 @@ int helpAddEdge(Graph *g, Edge *list, int node);
 /* Implementations
  */
 
-Graph *GraphAlloc(int nodes)
+Graph *GraphAlloc()
 {
     Graph *g = (Graph *)malloc(sizeof(Graph));
     assert(g != NULL);
-    assert(nodes> 0);
-
+    
+    int nodes = 100;
     g->nodes = (Node **)malloc( (nodes+1) * sizeof(Node *));
     assert(g->nodes != NULL);
 
     g->nodes_by_fvalue = (Node **)malloc( (nodes+1) * sizeof(Node *));
     assert(g->nodes_by_fvalue != NULL);
     
-    g->num_nodes = nodes;
+    g->num_nodes_alloced = nodes;
+    g->num_nodes = 0;
     g->num_edges = 0;
     
-    for(int i=1; i <= nodes; i++) {
-        g->nodes[i] = (Node *)malloc(sizeof(Node));
-        g->nodes[i]->value = i;
-        g->nodes[i]->visited = false;
-        g->nodes[i]->leader = 0;
-        g->nodes[i]->outgoing = NULL;
-        g->nodes[i]->incoming = NULL;
-    }
     return g;
 }
 
+void *GraphRealloc(Graph *g, int new_size) 
+{
+    Node ** temp = g->nodes;
+    int old_size = g->num_nodes;
+    g->nodes = (Node **)realloc(g->nodes,  (new_size+1) * sizeof(Node *));
+    memcpy(g->nodes, temp, old_size * sizeof(Node *));
+    g->num_nodes_alloced = new_size;
+}
 
 void GraphFree(Graph *g)
 {
@@ -61,8 +62,18 @@ void GraphFree(Graph *g)
 
 int GraphAddNode(Graph *g, int value)
 {
-    
+    if(g->num_nodes >= g->num_nodes_alloced) {
+	GraphRealloc(g, 2*g->num_nodes);
+    }
+    int i = g->num_nodes + 1;
+    g->nodes[i] = (Node *)malloc(sizeof(Node));
+    g->nodes[i]->value = value;
+    g->nodes[i]->visited = false;
+    g->nodes[i]->leader = 0;
+    g->nodes[i]->outgoing = NULL;
+    g->nodes[i]->incoming = NULL;
 
+    g->num_nodes++;
     return 0;
 }
 
@@ -78,6 +89,7 @@ int GraphAddEdge(Graph *g, int n1, int n2)
         Edge *new = (Edge *)malloc(sizeof(Edge));
         new->node = g->nodes[n2];
         new->next = NULL;
+	new->weight = 1;
         (g->nodes[n1])->outgoing = new;
     }
     else { //iterate to end of adjacency list and add node
@@ -88,6 +100,7 @@ int GraphAddEdge(Graph *g, int n1, int n2)
         Edge *new = (Edge *)malloc(sizeof(Edge));
         new->node = g->nodes[n1];
         new->next = NULL;
+	new->weight = 1;
         (g->nodes[n2])->incoming = new;
     }
     else {
@@ -194,8 +207,10 @@ int helpAddEdge(Graph *g, Edge *list, int node)
 {
     Edge *prev = list;
     while(list != NULL) {
-        if(list->node->value == node) // prevents duplicate edges
-            return 0;
+        if(list->node->value == node) { // prevents duplicate edges
+	    list->weight++;
+	    return 0;
+	}
         prev = list;
         list = list->next;
     }
@@ -203,6 +218,7 @@ int helpAddEdge(Graph *g, Edge *list, int node)
     Edge *new = (Edge *)malloc(sizeof(Edge));
     new->node = g->nodes[node];
     new->next = NULL;
+    new->weight = 1;
     prev->next = new;
     return 1;
 }

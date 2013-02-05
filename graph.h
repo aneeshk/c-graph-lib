@@ -34,6 +34,7 @@ typedef struct n {
 typedef struct {
     int num_nodes;
     int num_edges;
+    int num_nodes_alloced;
     
     //points to heap array of Node *'s, nodes[i] points to ith node
     Node **nodes;
@@ -44,16 +45,14 @@ typedef struct {
 
 /*
  * Function: GraphAlloc
- * Usage: Graph *mygraph = GraphAlloc(10);
+ * Usage: Graph *mygraph = GraphAlloc();
  * ---------------------------------------
  * Creates a new empty graph, and returns a pointer to it.  The pointer points
  * to storage allocated in the heap.  Client should call GraphFree(mygraph) to
  * deallocate it.  An assert is raised if allocation fails.
  *
- * The nodes parameter indicates the initial number of nodes in the graph.
- * All nodes are initialized, and numbered consecutively {1,2,...,n}, n=nodes.
  */
-Graph *GraphAlloc(int nodes);
+Graph *GraphAlloc();
 
 
 /*

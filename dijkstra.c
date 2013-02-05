@@ -2,9 +2,9 @@
 #include "graph.h"
 #include <stdlib.h>
 
-void findShortestPaths(char *inputFile, int ** PlayerToPlayerShortestPaths) {
-    FILE *ifp = fopen(inputFile, "r");
-    int num_nodes, num_edges;
+void findShortestPaths(FILE *ifp, FILE *ofp) {
+
+    int num_nodes;
     num_nodes = 1;
     Graph *g = GraphAlloc(num_nodes);
 	/*
@@ -14,8 +14,8 @@ void findShortestPaths(char *inputFile, int ** PlayerToPlayerShortestPaths) {
             GraphAddEdge(g, n1, n2);
     }
 	*/
+    PrintGraph(g, ofp);
     GraphFree(g);
-    fclose(ifp);
 }
 
 
@@ -27,18 +27,14 @@ int main(int argc, char **argv) {
         
     char* inputFile = argv[1];
     char* outputFile = argv[2];
-	
-    int numPlayers = 1;
-    int **playerToPlayerShortestPaths = 
-		(int **)malloc(numPlayers * numPlayers * sizeof(int));
-	
-    findShortestPaths(inputFile, playerToPlayerShortestPaths);
 
-        
-    // Output the first 5 sccs into a file.
     FILE *ofp = fopen(outputFile, "w");
+    FILE *ifp = fopen(inputFile, "r");
+	
+    findShortestPaths(ifp, ofp);
 
-    fprintf(ofp, "%d\t%d\t%d\t%d\t%d", 0,1,2,3,4);
+    //    fprintf(ofp, "%d\t%d\t%d\t%d\t%d", 0,1,2,3,4);
+    fclose(ifp);
     fclose(ofp);
     return 0;
 }

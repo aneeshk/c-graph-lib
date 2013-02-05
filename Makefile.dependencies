@@ -1,2 +1,0 @@
-graph.o: graph.c graph.h
-dijkstra.o: dijkstra.c graph.h
