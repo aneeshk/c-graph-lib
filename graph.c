@@ -25,7 +25,7 @@ Graph *GraphAlloc()
     Graph *g = (Graph *)malloc(sizeof(Graph));
     assert(g != NULL);
     
-    int nodes = 100;
+    int nodes = 20;
     g->nodes = (Node **)malloc( (nodes+1) * sizeof(Node *));
     assert(g->nodes != NULL);
 
@@ -39,12 +39,15 @@ Graph *GraphAlloc()
     return g;
 }
 
-void *GraphRealloc(Graph *g, int new_size) 
+void GraphRealloc(Graph *g, int new_size) 
 {
-    Node ** temp = g->nodes;
-    int old_size = g->num_nodes;
-    g->nodes = (Node **)realloc(g->nodes,  (new_size+1) * sizeof(Node *));
-    memcpy(g->nodes, temp, old_size * sizeof(Node *));
+  printf("reallocating nodes from %d to %d", g->num_nodes_alloced, new_size);
+
+    int old_size = g->num_nodes_alloced;
+    Node ** temp = (Node **) malloc( (old_size+1) * sizeof(Node *));
+    memcpy(temp, g->nodes, (old_size+1) * sizeof(Node *));
+    g->nodes = (Node **)realloc(g->nodes, (new_size+1) * sizeof(Node *));
+    memcpy(g->nodes, temp, (old_size+1) * sizeof(Node *));
     g->num_nodes_alloced = new_size;
 }
 
@@ -65,6 +68,13 @@ int GraphAddNode(Graph *g, int value)
     if(g->num_nodes >= g->num_nodes_alloced) {
 	GraphRealloc(g, 2*g->num_nodes);
     }
+    
+    // don't add a node whose value already exists
+    for(int i = 1; i < g->num_nodes; i++) {
+	if(g->nodes[i]->value == value)
+	    return 1;
+    }
+
     int i = g->num_nodes + 1;
     g->nodes[i] = (Node *)malloc(sizeof(Node));
     g->nodes[i]->value = value;
@@ -78,12 +88,30 @@ int GraphAddNode(Graph *g, int value)
 }
 
 
+int getNodeIndexByValue(Graph *g, int value) {
+    for(int i = 1; i < g->num_nodes; i++) {
+	if(g->nodes[i]->value == value) {
+	    return i;
+	}
+    }
+
+    return -1;
+}
+
+
 /* returns 1 on success, 0 on failure (example: repeating an edge)
  */
-int GraphAddEdge(Graph *g, int n1, int n2)
+int GraphAddEdge(Graph *g, int val1, int val2)
 {
     //self-edges are ok
     int success = 1;
+
+    int n1 = getNodeIndexByValue(g, val1);
+    int n2 = getNodeIndexByValue(g, val2);
+    
+    if(n1 == -1 || n2 == -1) {
+	return 0;
+    }
     
     if ( (g->nodes[n1])->outgoing == NULL) { //initialize adj list
         Edge *new = (Edge *)malloc(sizeof(Edge));
@@ -227,8 +255,11 @@ int helpAddEdge(Graph *g, Edge *list, int node)
 void PrintGraph(Graph *g, FILE *ofp)
 {
     fprintf(ofp, "%d\n%d\n", g->num_nodes, g->num_edges);
-    for(int i=1; i <= g->num_nodes; i++) {
+    printf("g has %d nodes and %d edges\n", g->num_nodes, g->num_edges);
+    for(int i=1; i < g->num_nodes; i++) {
+
         Edge *temp = g->nodes[i]->outgoing;
+
         while(temp != NULL) {
             fprintf(ofp, "%d %d\n", g->nodes[i]->value, temp->node->value);
             temp = temp->next;
