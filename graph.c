@@ -41,8 +41,7 @@ Graph *GraphAlloc()
 
 void GraphRealloc(Graph *g, int new_size) 
 {
-  printf("reallocating nodes from %d to %d", g->num_nodes_alloced, new_size);
-
+  
     int old_size = g->num_nodes_alloced;
     Node ** temp = (Node **) malloc( (old_size+1) * sizeof(Node *));
     memcpy(temp, g->nodes, (old_size+1) * sizeof(Node *));
@@ -70,7 +69,7 @@ int GraphAddNode(Graph *g, int value)
     }
     
     // don't add a node whose value already exists
-    for(int i = 1; i < g->num_nodes; i++) {
+    for(int i = 1; i <= g->num_nodes; i++) {
 	if(g->nodes[i]->value == value)
 	    return 1;
     }
@@ -89,7 +88,7 @@ int GraphAddNode(Graph *g, int value)
 
 
 int getNodeIndexByValue(Graph *g, int value) {
-    for(int i = 1; i < g->num_nodes; i++) {
+    for(int i = 1; i <= g->num_nodes; i++) {
 	if(g->nodes[i]->value == value) {
 	    return i;
 	}
