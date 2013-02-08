@@ -14,7 +14,7 @@ bool is_first_call;
 /* Function prototypes
  */
 void GraphFreeNode(Node *n);
-int helpAddEdge(Graph *g, Edge *list, int node);
+int helpAddEdge(Graph *g, Edge *list, int node, int val);
 
 
 /* Implementations
@@ -98,15 +98,23 @@ int getNodeIndexByValue(Graph *g, int value) {
 }
 
 
+
+
 /* returns 1 on success, 0 on failure (example: repeating an edge)
  */
 int GraphAddEdge(Graph *g, int val1, int val2)
 {
-    //self-edges are ok
-    int success = 1;
 
+    //disallow self-edges
+    if(val1 == val2) {
+	return 0;
+    }
+
+    int success = 1;
+    
     int n1 = getNodeIndexByValue(g, val1);
     int n2 = getNodeIndexByValue(g, val2);
+    
     
     if(n1 == -1 || n2 == -1) {
 	return 0;
@@ -120,9 +128,9 @@ int GraphAddEdge(Graph *g, int val1, int val2)
         (g->nodes[n1])->outgoing = new;
     }
     else { //iterate to end of adjacency list and add node
-        success = helpAddEdge(g, (g->nodes[n1])->outgoing, n2);
+	success = helpAddEdge(g, (g->nodes[n1])->outgoing, n2, val2);
     }
-
+    
     if ( (g->nodes[n2])->incoming == NULL) {
         Edge *new = (Edge *)malloc(sizeof(Edge));
         new->node = g->nodes[n1];
@@ -131,7 +139,7 @@ int GraphAddEdge(Graph *g, int val1, int val2)
         (g->nodes[n2])->incoming = new;
     }
     else {
-        success = helpAddEdge(g, (g->nodes[n2])->incoming, n1);
+        success = helpAddEdge(g, (g->nodes[n2])->incoming, n1, val1);
     }
 
     if(success)
@@ -230,11 +238,12 @@ void GraphFreeNode(Node *n)
 }
 
 
-int helpAddEdge(Graph *g, Edge *list, int node)
+int helpAddEdge(Graph *g, Edge *list, int node, int val)
 {
     Edge *prev = list;
+    
     while(list != NULL) {
-        if(list->node->value == node) { // prevents duplicate edges
+        if(list->node->value == val) { // prevents duplicate edges
 	    list->weight++;
 	    return 0;
 	}

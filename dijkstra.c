@@ -4,17 +4,16 @@
 
 void findShortestPaths(FILE *ifp, FILE *ofp) {
 
-    int num_nodes;
-    num_nodes = 1;
-    Graph *g = GraphAlloc(num_nodes);
+    int num_matches = 0;
+    Graph *g = GraphAlloc();
     
-    for(int i=0; i < 2500; i++) {
+    for(int i=0; i < 2076; i++) {
 	int match;
 	int p[22];
 
-	if(fscanf(ifp, "%d,%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d",
+	if(fscanf(ifp, "%d,%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d\n",
 		  &match, p, p+1, p+2, p+3, p+4, p+5, p+6, p+7, p+8, p+9, p+10, p+11, p+12, p+13, p+14, p+15, p+16, p+17, p+18, p+19, p+20, p+21)) {
-
+	    num_matches++;
 	    for(int j = 0; j < 22; j++) {
 		GraphAddNode(g, p[j]);
 		for(int k = 0; k < j; k++) {
@@ -28,7 +27,7 @@ void findShortestPaths(FILE *ifp, FILE *ofp) {
 	if(i % 100 == 0) printf("finished %d matches\n", i);
     }
     
-    printf("ready to print graph\n");
+    printf("done - %d matches\n", num_matches);
     PrintGraph(g, ofp);
     GraphFree(g);
 }
