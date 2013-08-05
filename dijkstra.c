@@ -2,11 +2,12 @@
 #include "graph.h"
 #include <stdlib.h>
 
-void findShortestPaths(FILE *ifp, FILE *ofp) {
+void findShortestPaths(FILE *ifp, FILE *ofp, FILE *dij_fp) {
 
     int num_matches = 0;
     Graph *g = GraphAlloc();
     
+    //construct graphs
     for(int i=0; i < 2076; i++) {
 	int match;
 	int p[22];
@@ -23,29 +24,37 @@ void findShortestPaths(FILE *ifp, FILE *ofp) {
 	    }
 	}
 	else { break; }
-
-	if(i % 100 == 0) printf("finished %d matches\n", i);
     }
+
     
-    printf("done - %d matches\n", num_matches);
     PrintGraph(g, ofp);
+
+    for(int k = 1; k < g->num_nodes; k++) {
+      printf("running dijkstra from node %d of %d\n", k, g->num_nodes);
+      dijkstraloop(g, g->nodes[k]);
+      for(int m = 1; m < g->num_nodes; m++) {
+	fprintf(dij_fp, "Shortest path from %d to %d is of length %d.\n", g->nodes[k]->value, g->nodes[m]->value, g->nodes[m]->distance);
+      }
+    }
     GraphFree(g);
 }
 
 
 int main(int argc, char **argv) {
-	if(argc != 3) {
-        fprintf(stderr, "Please specify exactly two arguments\n");
+	if(argc != 4) {
+        fprintf(stderr, "Please specify exactly three arguments\n");
         exit(1);
     }
         
     char* inputFile = argv[1];
     char* outputFile = argv[2];
+    char* dijkstraFile = argv[3];
 
     FILE *ofp = fopen(outputFile, "w");
     FILE *ifp = fopen(inputFile, "r");
+    FILE *dij_fp = fopen(dijkstraFile, "w");
 	
-    findShortestPaths(ifp, ofp);
+    findShortestPaths(ifp, ofp, dij_fp);
 
     //    fprintf(ofp, "%d\t%d\t%d\t%d\t%d", 0,1,2,3,4);
     fclose(ifp);

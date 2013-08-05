@@ -26,8 +26,10 @@ typedef struct e {
 typedef struct n {
     int value, leader;
     bool visited;
+    int distance;
     Edge *outgoing;
     Edge *incoming;
+    Edge *shortestpaths;
 } Node;
 // a node is represented by its integer value {1,2,...n}
 
@@ -39,6 +41,7 @@ typedef struct {
     //points to heap array of Node *'s, nodes[i] points to ith node
     Node **nodes;
     Node **nodes_by_fvalue; 
+    Node **nodes_by_distance; 
 } Graph;
 
 
@@ -84,6 +87,10 @@ int GraphAddNode(Graph *g, int value);
 int GraphAddEdge(Graph *g, int n1, int n2);
 
 void ReverseGraph(Graph *g);
+
+void dijkstra(Graph *g, Node *i, int cur_distance);
+
+void dijkstraloop(Graph *g, Node *i);
 
 void dfs(Graph *g, Node *i);
 

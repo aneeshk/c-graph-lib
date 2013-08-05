@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <stdbool.h>
 #include "graph.h"
+#include <limits.h>
 
 #define DEFAULT_NODES = 100;
 
@@ -79,8 +80,10 @@ int GraphAddNode(Graph *g, int value)
     g->nodes[i]->value = value;
     g->nodes[i]->visited = false;
     g->nodes[i]->leader = 0;
+    g->nodes[i]->distance = 0;
     g->nodes[i]->outgoing = NULL;
     g->nodes[i]->incoming = NULL;
+    g->nodes[i]->shortestpaths = NULL;
 
     g->num_nodes++;
     return 0;
@@ -96,8 +99,6 @@ int getNodeIndexByValue(Graph *g, int value) {
 
     return -1;
 }
-
-
 
 
 /* returns 1 on success, 0 on failure (example: repeating an edge)
@@ -190,6 +191,61 @@ void dfs(Graph *g, Node *i) {
     }
 }
 
+bool allConnectedNodesAreVisited(Graph *g) {
+  for(int i=1; i < g->num_nodes; i++) {
+    if(g->nodes[i]->visited == false) {
+      return false;
+    }
+  }
+  return true;
+}
+
+int getUnvisitedNodeWithSmallestDistance(Graph *g) {
+  int minDistanceSoFar = INT_MAX;
+  int nodeWithMinDistance = 0;
+
+  for(int i=1; i < g->num_nodes; i++) {
+    if(g->nodes[i]->visited == false && g->nodes[i]->distance < minDistanceSoFar && g->nodes[i]->distance > 0) {
+      minDistanceSoFar = g->nodes[i]->distance;
+      nodeWithMinDistance = i;
+    }
+  }
+
+  return nodeWithMinDistance;
+
+}
+
+void dijkstraloop(Graph *g, Node *i) {
+  for(int j=1; j < g->num_nodes; j++) {
+      g->nodes[j]->visited = false;
+      g->nodes[j]->distance = 0;
+  }
+  
+  dijkstra(g, i, 0);
+
+}
+
+void dijkstra(Graph *g, Node *i, int cur_distance) {
+    if(allConnectedNodesAreVisited(g))
+      return;
+
+    Edge *temp = i->outgoing;
+    while(temp != NULL) {
+	if(temp->node->visited == false) {
+	  if(temp->node->distance == 0 || temp->node->distance > cur_distance + 1) {
+
+	    temp->node->distance = cur_distance + 1;
+
+	  }
+	}
+	temp = temp->next;
+    }
+    i->visited = true;
+
+    int index = getUnvisitedNodeWithSmallestDistance(g);
+    if(index == 0) return; // all nodes are visited
+    dijkstra(g, g->nodes[index], g->nodes[index]->distance);
+}
 
 void dfsloop(Graph *g, bool first) {
     t = 0;
