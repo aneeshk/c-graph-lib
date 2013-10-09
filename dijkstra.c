@@ -30,10 +30,17 @@ void findShortestPaths(FILE *ifp, FILE *ofp, FILE *dij_fp) {
     PrintGraph(g, ofp);
 
     for(int k = 1; k < g->num_nodes; k++) {
-      printf("running dijkstra from node %d of %d\n", k, g->num_nodes);
+      //      printf("running dijkstra from node %d of %d\n", k, g->num_nodes);
       dijkstraloop(g, g->nodes[k]);
       for(int m = 1; m < g->num_nodes; m++) {
-	fprintf(dij_fp, "Shortest path from %d to %d is of length %d.\n", g->nodes[k]->value, g->nodes[m]->value, g->nodes[m]->distance);
+	fprintf(dij_fp, "%d to %d, length %d: ", g->nodes[k]->value, g->nodes[m]->value, g->nodes[m]->distance);
+        Edge *temp = g->nodes[m]->shortestPath;
+
+        while(temp != NULL) {
+            fprintf(dij_fp, "%d -> ", temp->node->value);
+            temp = temp->next;
+        }
+	fprintf(dij_fp, "| \n");
       }
     }
     GraphFree(g);

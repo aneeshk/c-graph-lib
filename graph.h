@@ -29,7 +29,7 @@ typedef struct n {
     int distance;
     Edge *outgoing;
     Edge *incoming;
-    Edge *shortestpaths;
+    Edge *shortestPath;
 } Node;
 // a node is represented by its integer value {1,2,...n}
 
@@ -88,7 +88,7 @@ int GraphAddEdge(Graph *g, int n1, int n2);
 
 void ReverseGraph(Graph *g);
 
-void dijkstra(Graph *g, Node *i, int cur_distance);
+void dijkstra(Graph *g, Node *i, int cur_distance, int starting_node);
 
 void dijkstraloop(Graph *g, Node *i);
 
@@ -100,6 +100,13 @@ void PrintGraph(Graph *g, FILE *ofp);
 
 void GraphReorderNodesByFValue(Graph *g);
 
-
+/*
+ * Function: GraphAddShortestPath
+ * Usage: GraphAddShortestPath(mygraph, 2, 5);
+ * ---------------------------------------
+ * Used when running dijsktra() from node i, this function is called to
+ * add node 'via' as being on the shortest path from i->pathTo.
+ */
+int GraphAddShortestPath(Graph *g, int pathTo, int via, int dijkstra_starting_node);
 
 #endif

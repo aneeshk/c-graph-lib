@@ -83,7 +83,7 @@ int GraphAddNode(Graph *g, int value)
     g->nodes[i]->distance = 0;
     g->nodes[i]->outgoing = NULL;
     g->nodes[i]->incoming = NULL;
-    g->nodes[i]->shortestpaths = NULL;
+    g->nodes[i]->shortestPath = NULL;
 
     g->num_nodes++;
     return 0;
@@ -91,7 +91,7 @@ int GraphAddNode(Graph *g, int value)
 
 
 int getNodeIndexByValue(Graph *g, int value) {
-    for(int i = 1; i <= g->num_nodes; i++) {
+    for(int i = 1; i < g->num_nodes; i++) {
 	if(g->nodes[i]->value == value) {
 	    return i;
 	}
@@ -105,7 +105,6 @@ int getNodeIndexByValue(Graph *g, int value) {
  */
 int GraphAddEdge(Graph *g, int val1, int val2)
 {
-
     //disallow self-edges
     if(val1 == val2) {
 	return 0;
@@ -145,6 +144,41 @@ int GraphAddEdge(Graph *g, int val1, int val2)
 
     if(success)
         g->num_edges += 1;
+    return success;
+}
+
+
+/* returns 1 on success, 0 on failure (example: repeating an edge)
+ */
+int GraphAddShortestPath(Graph *g, int pathTo, int via, int dijkstra_starting_node)
+{
+    if(pathTo == dijkstra_starting_node)
+      return 0;
+
+    int success = 1;
+    
+    int n1 = getNodeIndexByValue(g, pathTo);
+    int n2 = getNodeIndexByValue(g, via);
+    
+    if(n1 == -1 || n2 == -1) {
+	return 0;
+    }
+    
+    if ( (g->nodes[n1])->shortestPath == NULL) { //initialize adj list
+        Edge *new = (Edge *)malloc(sizeof(Edge));
+        new->node = g->nodes[n2];
+        new->next = NULL;
+	new->weight = 1;
+        (g->nodes[n1])->shortestPath = new;
+    }
+    else { //iterate to end of adjacency list and add node
+	success = helpAddEdge(g, (g->nodes[n1])->shortestPath, n2, via);
+    }
+    
+    //now add shortest path to get to via ... until via == pathTo
+    if(g->nodes[n2]->shortestPath != NULL && g->nodes[n2]->shortestPath->node->value != pathTo)
+      GraphAddShortestPath(g, via, g->nodes[n2]->shortestPath->node->value, dijkstra_starting_node);
+    
     return success;
 }
 
@@ -221,11 +255,11 @@ void dijkstraloop(Graph *g, Node *i) {
       g->nodes[j]->distance = 0;
   }
   
-  dijkstra(g, i, 0);
+  dijkstra(g, i, 0, i->value);
 
 }
 
-void dijkstra(Graph *g, Node *i, int cur_distance) {
+void dijkstra(Graph *g, Node *i, int cur_distance, int starting_node) {
     if(allConnectedNodesAreVisited(g))
       return;
 
@@ -233,9 +267,9 @@ void dijkstra(Graph *g, Node *i, int cur_distance) {
     while(temp != NULL) {
 	if(temp->node->visited == false) {
 	  if(temp->node->distance == 0 || temp->node->distance > cur_distance + 1) {
-
+	    
 	    temp->node->distance = cur_distance + 1;
-
+	    GraphAddShortestPath(g, temp->node->value, i->value, starting_node);
 	  }
 	}
 	temp = temp->next;
@@ -244,7 +278,7 @@ void dijkstra(Graph *g, Node *i, int cur_distance) {
 
     int index = getUnvisitedNodeWithSmallestDistance(g);
     if(index == 0) return; // all nodes are visited
-    dijkstra(g, g->nodes[index], g->nodes[index]->distance);
+    dijkstra(g, g->nodes[index], g->nodes[index]->distance, i->value);
 }
 
 void dfsloop(Graph *g, bool first) {
@@ -294,7 +328,7 @@ void GraphFreeNode(Node *n)
 }
 
 
-int helpAddEdge(Graph *g, Edge *list, int node, int val)
+int helpAddEdge(Graph *g, Edge *list, int node_index, int val)
 {
     Edge *prev = list;
     
@@ -308,7 +342,7 @@ int helpAddEdge(Graph *g, Edge *list, int node, int val)
     }
         
     Edge *new = (Edge *)malloc(sizeof(Edge));
-    new->node = g->nodes[node];
+    new->node = g->nodes[node_index];
     new->next = NULL;
     new->weight = 1;
     prev->next = new;

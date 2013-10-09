@@ -15,7 +15,7 @@ CC = gcc
 #  -pedantic   require compliance with ANSI standard
 #  -O0		   do not optimize generated code
 #  -std=gnu99  use the Gnu C99 standard language definition
-CFLAGS = -g -Wall -pedantic -m32 -O2 -std=gnu99 -floop-optimize
+CFLAGS = -g -Wall -pedantic -m32 -O0 -std=gnu99 -floop-optimize
 
 # The LDFLAGS variable sets flags for linker
 #  -lm	  link in libm (math library)
